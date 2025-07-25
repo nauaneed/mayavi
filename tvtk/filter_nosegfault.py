@@ -1,7 +1,7 @@
 """
-Some classes in VTK segfault when accessed. Random classes segfault on different distros,
-vtk versions, and python versions. This script tries to identify and exclude those
-classes from the tvtk module.
+Some classes in VTK segfault when accessed. Random classes segfault on
+different distros, vtk versions, and python versions. This script tries to
+identify and exclude those classes from the tvtk module.
 """
 
 import argparse
@@ -15,11 +15,12 @@ from .code_gen import TVTKGenerator
 from .common import get_tvtk_name
 from .wrapper_gen import WrapperGenerator
 
+
 def exclude_segfault_classes(max_exclude=50):
     """
-    This function calls `catch` in a separate process to identify classes that cause
-    segmentation faults. A separate process is used as the segfault kills the its
-    own process.
+    This function calls `catch` in a separate process to identify classes that
+    cause segmentation faults. A separate process is used as the segfault kills
+    the its own process.
     """
 
     orig_module_py = Path(__file__).parent.joinpath("vtk_module.py")
@@ -55,13 +56,15 @@ def exclude_segfault_classes(max_exclude=50):
                 ti = int(tif.read().strip())
                 ni = int(nif.read().strip())
 
-            if (ti == nt - 1 and ni == nn - 1) or len(to_exclude) > max_exclude:
+            if (ti == nt - 1 and ni == nn - 1) or len(
+                to_exclude
+            ) > max_exclude:
                 break
 
             nodes = tree[ti]
             node = nodes[ni]
             if node.name not in to_exclude:
-                print(f'Excluding {node.name} {ti} {ni}')
+                print(f"Excluding {node.name} {ti} {ni}")
                 to_exclude.append(node.name)
                 with open(orig_module_py, "a") as f:
                     f.write(
@@ -79,7 +82,7 @@ def exclude_segfault_classes(max_exclude=50):
             else:
                 ni += 1
 
-        if not to_exclude:
+        if len(to_exclude) == 0:
             print("No extra classes to exclude")
 
         try:
@@ -92,11 +95,11 @@ def exclude_segfault_classes(max_exclude=50):
             bak_module_py.unlink()
 
 
-
 def catch(tstart=0, nstart=0, loc="/tmp"):
     """
-    This function traverses the VTK class tree and attempts to access each class.
-    It saves the last successfully accessed class indices to temporary files.
+    This function traverses the VTK class tree and attempts to access each
+    class. It saves the last successfully accessed class indices to temporary
+    files.
     """
 
     tifile = Path(loc).joinpath("ti")
@@ -122,7 +125,10 @@ def catch(tstart=0, nstart=0, loc="/tmp"):
             if node.name in classes:
                 tvtk_name = get_tvtk_name(node.name)
                 try:
-                    with tifile.open("w") as tif, nifile.open("w") as nif:
+                    with (
+                        tifile.open("w", encoding="utf-8") as tif,
+                        nifile.open("w", encoding="utf-8") as nif,
+                    ):
                         tif.write(f"{ti}\n")
                         nif.write(f"{ni}\n")
 
@@ -133,13 +139,15 @@ def catch(tstart=0, nstart=0, loc="/tmp"):
                 except Exception:
                     print(
                         f"Failed on {tvtk_name}\n(# {ti + 1} of {nt} nodes, "
-                        f"#{ni + 1} of {nn} subnodes):\n{traceback.format_exc()}\n"
+                        f"#{ni + 1} of {nn} subnodes):\n"
+                        f"{traceback.format_exc()}\n"
                     )
 
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(
-        description="Run try_tree with specified starting indices and file location."
+        description="Run try_tree with specified starting indices and file "
+        "location."
     )
 
     parser.add_argument(
