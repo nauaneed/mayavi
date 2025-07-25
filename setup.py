@@ -35,8 +35,9 @@ exec(compile(open(fname).read(), fname, 'exec'), info)
 DEFAULT_HTML_TARGET_DIR = join('docs', 'build')
 DEFAULT_INPUT_DIR = join('docs', 'source',)
 
-from tvtk.filter_nosegfault import exclude_segfault_classes
-exclude_segfault_classes()
+if os.environ.get("FORCE_INSTALL", 'False').lower() in ['true', '1']:
+    from tvtk.filter_nosegfault import exclude_segfault_classes 
+    exclude_segfault_classes()
 
 class GenDocs(Command):
 
