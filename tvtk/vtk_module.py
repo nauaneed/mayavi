@@ -61,10 +61,12 @@ if vtk_version in ["9.4.0", "9.4.1", "9.4.2"]:
         del vtkIOSSReader, vtkIOSSCellGridReader
     except NameError:
         pass
-    if vtk_version == "9.4.2":
-        # vtkXOpenGLRenderWindow segfaults when being deconstructed on 9.4.2
-        SKIP += ["vtkXOpenGLRenderWindow"]
-        try:
-            del vtkXOpenGLRenderWindow
-        except NameError:
-            pass
+
+if vtk_version == "9.4.2" or vtk_version.startswith("9.5"):
+    # vtkXOpenGLRenderWindow segfaults when being deconstructed on 9.4.2 to
+    # 9.5.x (9.5.2 is latest at the time of writing).
+    SKIP += ["vtkXOpenGLRenderWindow"]
+    try:
+        del vtkXOpenGLRenderWindow
+    except NameError:
+        pass
